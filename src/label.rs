@@ -1,9 +1,8 @@
 use crate::geometry::{Color, Rect};
 use crate::widget::{DrawCommand, Widget};
 
-/// Text widget. Glyph rendering isn't built yet (that needs its own font
-/// pipeline), so `draw_commands` just emits the text's background plate for
-/// now — enough to see it positioned in the gallery.
+/// A line of text, centered vertically in its bounds and left-aligned, as
+/// large as the bounds' height allows (see [`DrawCommand::centered_text`]).
 pub struct Label {
     pub text: String,
     pub color: Color,
@@ -30,10 +29,11 @@ impl Widget for Label {
     }
 
     fn draw_commands(&self) -> Vec<DrawCommand> {
-        vec![DrawCommand::Rect {
-            rect: self.bounds,
-            color: self.color,
-        }]
+        let mut cmd = DrawCommand::centered_text(self.bounds, self.color, &self.text);
+        if let DrawCommand::Text { x, .. } = &mut cmd {
+            *x = self.bounds.x;
+        }
+        vec![cmd]
     }
 }
 

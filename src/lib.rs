@@ -1,14 +1,17 @@
 //! GUI widgets for the `42run` project, built on `pulga_win_lib`.
 //!
-//! Widget logic (layout, hover/press state, selection) is plain Rust with no
-//! GL or windowing dependency, so it's unit-tested the same way on native
-//! and on `wasm32-unknown-unknown`. Rendering is a separate concern: widgets
-//! emit [`widget::DrawCommand`]s that a backend (the native GL gallery
-//! example today) turns into pixels.
+//! Widget logic (layout, hover/press state, selection) and text layout
+//! ([`font`]) are plain Rust with no GL or windowing dependency, so they're
+//! unit-tested the same way on native and on `wasm32-unknown-unknown`.
+//! Rendering is a separate concern: widgets emit [`widget::DrawCommand`]s
+//! that a backend turns into pixels — [`render::GuiRenderer`] on native.
 
 pub mod button;
+pub mod font;
 pub mod geometry;
 pub mod label;
+#[cfg(not(target_arch = "wasm32"))]
+pub mod render;
 pub mod selector;
 pub mod stack;
 pub mod widget;

@@ -1,29 +1,26 @@
 //! Opens a window and lays out one of each widget so you can eyeball them.
-//! `cargo run --example gallery` (needs a display).
-//!
-//! Rendering here is a crude scissor-rect clear per widget, not a real quad
-//! pipeline — good enough to see layout/state visually; a textured/shader
-//! renderer is a separate piece of work for when pulga_win_lib's shader
-//! support lands.
+//! `cargo run --example gallery` (needs a display). Mouse hovers/clicks the
+//! button, Space cycles the selector, Escape quits.
 
 use pulga_gui_lib::{
-    Button, DrawCommand, Label, Selector, Widget, geometry::Rect, stack::layout_vertical,
+    Button, Label, Selector, Widget, geometry::Rect, render::GuiRenderer, stack::layout_vertical,
 };
-use pulga_win_lib::{App, Event, Key, WindowConfig, gl, run};
+use pulga_win_lib::{App, Event, Key, MouseButton, WindowConfig, render, run};
 
 struct Gallery {
     label: Label,
     button: Button,
     selector: Selector,
-    // GL's scissor origin is bottom-left; widget layout is top-left, so we
-    // need the window height to flip y when issuing scissor rects.
-    window_height: u32,
+    gui: Option<GuiRenderer>,
+    size: (f32, f32),
+    mouse: (f32, f32),
+    quit: bool,
 }
 
 impl Gallery {
     fn new() -> Self {
-        let mut label = Label::new("42run");
-        let mut button = Button::new("Play");
+        let mut label = Label::new("42RUN GALLERY");
+        let mut button = Button::new("PLAY");
         let mut selector = Selector::new(vec!["Marvin".into(), "Robo".into(), "Pulga".into()]);
 
         let mut widgets: Vec<&mut dyn Widget> = vec![&mut label, &mut button, &mut selector];
@@ -38,51 +35,56 @@ impl Gallery {
             label,
             button,
             selector,
-            window_height: 720,
+            gui: None,
+            size: (1280.0, 720.0),
+            mouse: (0.0, 0.0),
+            quit: false,
         }
-    }
-
-    fn widgets(&self) -> [&dyn Widget; 3] {
-        [&self.label, &self.button, &self.selector]
     }
 }
 
 impl App for Gallery {
+    fn init(&mut self) {
+        self.gui = Some(unsafe { GuiRenderer::new() });
+    }
+
     fn event(&mut self, event: Event) {
-        if event == Event::KeyDown(Key::Escape) {
-            std::process::exit(0);
-        }
-        if event == Event::KeyDown(Key::Space) {
-            self.selector.next();
-        }
-        if let Event::Resized { height, .. } = event {
-            self.window_height = height;
+        match event {
+            Event::KeyDown(Key::Escape) => self.quit = true,
+            Event::KeyDown(Key::Space) => self.selector.next(),
+            Event::Resized { width, height } => self.size = (width as f32, height as f32),
+            Event::MouseMoved { x, y } => {
+                self.mouse = (x, y);
+                self.button.on_mouse_move(x, y);
+            }
+            Event::MouseDown(MouseButton::Left) => {
+                self.button.on_mouse_down(self.mouse.0, self.mouse.1)
+            }
+            Event::MouseUp(MouseButton::Left) => {
+                let clicked = self.button.on_mouse_up(self.mouse.0, self.mouse.1);
+                if clicked {
+                    self.selector.next();
+                }
+            }
+            _ => {}
         }
     }
 
     fn draw(&mut self) {
+        let mut commands = self.label.draw_commands();
+        commands.extend(self.button.draw_commands());
+        commands.extend(self.selector.draw_commands());
         unsafe {
-            gl::ClearColor(0.1, 0.1, 0.12, 1.0);
-            gl::Clear(gl::COLOR_BUFFER_BIT);
-            gl::Enable(gl::SCISSOR_TEST);
+            render::clear([0.1, 0.1, 0.12, 1.0]);
+            self.gui
+                .as_mut()
+                .unwrap()
+                .draw(&commands, self.size.0, self.size.1);
         }
-        for widget in self.widgets() {
-            for cmd in widget.draw_commands() {
-                let DrawCommand::Rect { rect, color } = cmd;
-                let flipped_y = self.window_height as f32 - rect.y - rect.h;
-                unsafe {
-                    gl::Scissor(
-                        rect.x as i32,
-                        flipped_y as i32,
-                        rect.w as i32,
-                        rect.h as i32,
-                    );
-                    gl::ClearColor(color.r, color.g, color.b, color.a);
-                    gl::Clear(gl::COLOR_BUFFER_BIT);
-                }
-            }
-        }
-        unsafe { gl::Disable(gl::SCISSOR_TEST) };
+    }
+
+    fn should_quit(&self) -> bool {
+        self.quit
     }
 }
 

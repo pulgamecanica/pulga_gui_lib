@@ -1,14 +1,16 @@
 # pulga_gui_lib
 
 GUI widget library for the `42run` project: `Label`, `Button`, `Selector`
-today, more to come.
+today, more to come, plus text: a built-in 5×7 bitmap font defined as ASCII
+art in `src/font.rs` (no font files, font libraries or image decoders).
 
 Widget logic (layout, hover/press state, selection) lives in plain Rust with
 no GL or windowing dependency — that's what makes it testable on both native
 and `wasm32-unknown-unknown`. A widget describes itself as a list of
-`DrawCommand`s (`src/widget.rs`); a backend turns those into pixels. The only
-backend today is the native GL gallery example below; `pulga_win_lib` itself is
-a native-only dependency (`[target.'cfg(not(target_arch = "wasm32"))']` in
+`DrawCommand`s (`src/widget.rs`: `Rect` and `Text`); a backend turns those
+into pixels. The native backend is `src/render.rs` (`GuiRenderer`, drawing
+through `pulga_win_lib`'s `Canvas2d`); `pulga_win_lib` itself is a native-only
+dependency (`[target.'cfg(not(target_arch = "wasm32"))']` in
 `Cargo.toml`) since its `winit`/`glutin` stack doesn't target wasm32.
 
 ## Usage

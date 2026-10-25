@@ -10,6 +10,7 @@ pub enum ButtonState {
 
 pub struct Button {
     pub label: String,
+    pub text_color: Color,
     pub idle_color: Color,
     pub hovered_color: Color,
     pub pressed_color: Color,
@@ -21,6 +22,7 @@ impl Button {
     pub fn new(label: impl Into<String>) -> Self {
         Self {
             label: label.into(),
+            text_color: Color::rgb(0.95, 0.95, 0.95),
             idle_color: Color::rgb(0.25, 0.25, 0.3),
             hovered_color: Color::rgb(0.35, 0.35, 0.45),
             pressed_color: Color::rgb(0.15, 0.6, 0.3),
@@ -79,10 +81,13 @@ impl Widget for Button {
             ButtonState::Hovered => self.hovered_color,
             ButtonState::Pressed => self.pressed_color,
         };
-        vec![DrawCommand::Rect {
-            rect: self.bounds,
-            color,
-        }]
+        vec![
+            DrawCommand::Rect {
+                rect: self.bounds,
+                color,
+            },
+            DrawCommand::centered_text(self.bounds, self.text_color, &self.label),
+        ]
     }
 }
 

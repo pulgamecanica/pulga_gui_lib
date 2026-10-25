@@ -6,6 +6,7 @@ pub struct Selector {
     options: Vec<String>,
     index: usize,
     pub color: Color,
+    pub text_color: Color,
     bounds: Rect,
 }
 
@@ -18,6 +19,7 @@ impl Selector {
             options,
             index: 0,
             color: Color::rgb(0.4, 0.4, 0.7),
+            text_color: Color::rgb(0.95, 0.95, 0.95),
             bounds: Rect::new(0.0, 0.0, 0.0, 0.0),
         }
     }
@@ -45,10 +47,17 @@ impl Widget for Selector {
     }
 
     fn draw_commands(&self) -> Vec<DrawCommand> {
-        vec![DrawCommand::Rect {
-            rect: self.bounds,
-            color: self.color,
-        }]
+        vec![
+            DrawCommand::Rect {
+                rect: self.bounds,
+                color: self.color,
+            },
+            DrawCommand::centered_text(
+                self.bounds,
+                self.text_color,
+                &format!("< {} >", self.selected()),
+            ),
+        ]
     }
 }
 
