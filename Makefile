@@ -29,7 +29,7 @@ coverage: ## cargo tarpaulin --lib (widget logic only, no GL/window needed)
 gallery: ## Open a window showing one of each widget (needs a display)
 	cargo run --example gallery
 
-wasm-test: ## Run widget tests in headless Firefox via wasm32 (needs `make -C ../42Run wasm-image` once)
+wasm-test: ## Run widget tests in headless Firefox via wasm32 (needs `make -C .. wasm-image` once)
 	podman run --rm \
 		-v $(CURDIR):$(CURDIR):Z \
 		-v $(CURDIR)/../pulga_win_lib:$(CURDIR)/../pulga_win_lib:ro \
