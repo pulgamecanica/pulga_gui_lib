@@ -14,7 +14,12 @@ impl Selector {
     /// Panics if `options` is empty — a selector needs at least one option.
     pub fn new(options: Vec<String>) -> Self {
         assert!(!options.is_empty(), "Selector needs at least one option");
-        Self { options, index: 0, color: Color::rgb(0.4, 0.4, 0.7), bounds: Rect::new(0.0, 0.0, 0.0, 0.0) }
+        Self {
+            options,
+            index: 0,
+            color: Color::rgb(0.4, 0.4, 0.7),
+            bounds: Rect::new(0.0, 0.0, 0.0, 0.0),
+        }
     }
 
     pub fn selected(&self) -> &str {
@@ -40,7 +45,10 @@ impl Widget for Selector {
     }
 
     fn draw_commands(&self) -> Vec<DrawCommand> {
-        vec![DrawCommand::Rect { rect: self.bounds, color: self.color }]
+        vec![DrawCommand::Rect {
+            rect: self.bounds,
+            color: self.color,
+        }]
     }
 }
 

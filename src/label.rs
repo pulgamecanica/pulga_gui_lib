@@ -12,7 +12,11 @@ pub struct Label {
 
 impl Label {
     pub fn new(text: impl Into<String>) -> Self {
-        Self { text: text.into(), color: Color::rgb(0.9, 0.9, 0.9), bounds: Rect::new(0.0, 0.0, 0.0, 0.0) }
+        Self {
+            text: text.into(),
+            color: Color::rgb(0.9, 0.9, 0.9),
+            bounds: Rect::new(0.0, 0.0, 0.0, 0.0),
+        }
     }
 }
 
@@ -26,7 +30,10 @@ impl Widget for Label {
     }
 
     fn draw_commands(&self) -> Vec<DrawCommand> {
-        vec![DrawCommand::Rect { rect: self.bounds, color: self.color }]
+        vec![DrawCommand::Rect {
+            rect: self.bounds,
+            color: self.color,
+        }]
     }
 }
 

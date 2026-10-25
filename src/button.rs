@@ -37,7 +37,11 @@ impl Button {
         if self.state == ButtonState::Pressed {
             return;
         }
-        self.state = if self.bounds.contains(x, y) { ButtonState::Hovered } else { ButtonState::Idle };
+        self.state = if self.bounds.contains(x, y) {
+            ButtonState::Hovered
+        } else {
+            ButtonState::Idle
+        };
     }
 
     pub fn on_mouse_down(&mut self, x: f32, y: f32) {
@@ -51,7 +55,11 @@ impl Button {
     pub fn on_mouse_up(&mut self, x: f32, y: f32) -> bool {
         let was_pressed = self.state == ButtonState::Pressed;
         let inside = self.bounds.contains(x, y);
-        self.state = if inside { ButtonState::Hovered } else { ButtonState::Idle };
+        self.state = if inside {
+            ButtonState::Hovered
+        } else {
+            ButtonState::Idle
+        };
         was_pressed && inside
     }
 }
@@ -71,7 +79,10 @@ impl Widget for Button {
             ButtonState::Hovered => self.hovered_color,
             ButtonState::Pressed => self.pressed_color,
         };
-        vec![DrawCommand::Rect { rect: self.bounds, color }]
+        vec![DrawCommand::Rect {
+            rect: self.bounds,
+            color,
+        }]
     }
 }
 

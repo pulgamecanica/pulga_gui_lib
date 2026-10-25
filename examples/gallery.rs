@@ -6,7 +6,9 @@
 //! renderer is a separate piece of work for when pulga_win_lib's shader
 //! support lands.
 
-use pulga_gui_lib::{Button, DrawCommand, Label, Selector, Widget, geometry::Rect, stack::layout_vertical};
+use pulga_gui_lib::{
+    Button, DrawCommand, Label, Selector, Widget, geometry::Rect, stack::layout_vertical,
+};
 use pulga_win_lib::{App, Event, Key, WindowConfig, gl, run};
 
 struct Gallery {
@@ -25,9 +27,19 @@ impl Gallery {
         let mut selector = Selector::new(vec!["Marvin".into(), "Robo".into(), "Pulga".into()]);
 
         let mut widgets: Vec<&mut dyn Widget> = vec![&mut label, &mut button, &mut selector];
-        layout_vertical(Rect::new(40.0, 40.0, 300.0, 400.0), &mut widgets, 60.0, 20.0);
+        layout_vertical(
+            Rect::new(40.0, 40.0, 300.0, 400.0),
+            &mut widgets,
+            60.0,
+            20.0,
+        );
 
-        Self { label, button, selector, window_height: 720 }
+        Self {
+            label,
+            button,
+            selector,
+            window_height: 720,
+        }
     }
 
     fn widgets(&self) -> [&dyn Widget; 3] {
@@ -59,7 +71,12 @@ impl App for Gallery {
                 let DrawCommand::Rect { rect, color } = cmd;
                 let flipped_y = self.window_height as f32 - rect.y - rect.h;
                 unsafe {
-                    gl::Scissor(rect.x as i32, flipped_y as i32, rect.w as i32, rect.h as i32);
+                    gl::Scissor(
+                        rect.x as i32,
+                        flipped_y as i32,
+                        rect.w as i32,
+                        rect.h as i32,
+                    );
                     gl::ClearColor(color.r, color.g, color.b, color.a);
                     gl::Clear(gl::COLOR_BUFFER_BIT);
                 }
@@ -70,5 +87,11 @@ impl App for Gallery {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    run(WindowConfig { title: "pulga_gui_lib gallery".into(), ..Default::default() }, Gallery::new())
+    run(
+        WindowConfig {
+            title: "pulga_gui_lib gallery".into(),
+            ..Default::default()
+        },
+        Gallery::new(),
+    )
 }
