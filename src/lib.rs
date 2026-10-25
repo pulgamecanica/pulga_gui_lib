@@ -1,4 +1,4 @@
-//! GUI widgets for the `42run` project, built on `PulgaWinLib`.
+//! GUI widgets for the `42run` project, built on `pulga_win_lib`.
 //!
 //! Widget logic (layout, hover/press state, selection) is plain Rust with no
 //! GL or windowing dependency, so it's unit-tested the same way on native

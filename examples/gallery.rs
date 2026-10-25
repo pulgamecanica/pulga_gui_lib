@@ -3,11 +3,11 @@
 //!
 //! Rendering here is a crude scissor-rect clear per widget, not a real quad
 //! pipeline — good enough to see layout/state visually; a textured/shader
-//! renderer is a separate piece of work for when PulgaWinLib's shader
+//! renderer is a separate piece of work for when pulga_win_lib's shader
 //! support lands.
 
-use PulgaGuiLib::{Button, DrawCommand, Label, Selector, Widget, geometry::Rect, stack::layout_vertical};
-use PulgaWinLib::{App, Event, Key, WindowConfig, gl, run};
+use pulga_gui_lib::{Button, DrawCommand, Label, Selector, Widget, geometry::Rect, stack::layout_vertical};
+use pulga_win_lib::{App, Event, Key, WindowConfig, gl, run};
 
 struct Gallery {
     label: Label,
@@ -70,5 +70,5 @@ impl App for Gallery {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    run(WindowConfig { title: "PulgaGuiLib gallery".into(), ..Default::default() }, Gallery::new())
+    run(WindowConfig { title: "pulga_gui_lib gallery".into(), ..Default::default() }, Gallery::new())
 }

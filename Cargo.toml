@@ -1,14 +1,14 @@
 [package]
-name = "PulgaGuiLib"
+name = "pulga_gui_lib"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 
 # Only the native gallery example opens a real window; the widget logic
-# itself (what gets tested, including on wasm32) never touches PulgaWinLib.
+# itself (what gets tested, including on wasm32) never touches pulga_win_lib.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-PulgaWinLib = { path = "../PulgaWinLib" }
+pulga_win_lib = { path = "../pulga_win_lib" }
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
 wasm-bindgen-test = "0.3"
