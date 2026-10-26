@@ -1,26 +1,35 @@
-//! GUI widgets for the `42run` project, built on `pulga_win_lib`.
+//! GUI toolkit for the `42run` project: an immediate-mode [`Ui`] with the
+//! widgets an editor needs, a customizable [`Theme`], a built-in bitmap
+//! [`font`] and pixel [`icons`].
 //!
-//! Widget logic (layout, hover/press state, selection) and text layout
-//! ([`font`]) are plain Rust with no GL or windowing dependency, so they're
-//! unit-tested the same way on native and on `wasm32-unknown-unknown`.
-//! Rendering is a separate concern: widgets emit [`widget::DrawCommand`]s
-//! that a backend turns into pixels — [`render::GuiRenderer`] on native.
+//! The design keeps three concerns apart:
+//!
+//! - **Logic** ([`Ui`]): layout, interaction state, widgets. Plain Rust with
+//!   no GL or windowing dependency, unit-tested on native and on
+//!   `wasm32-unknown-unknown`.
+//! - **Input** ([`Input`]): a plain snapshot the host fills from whatever
+//!   window library it uses.
+//! - **Output** ([`DrawCommand`]): what to draw, interpreted by a backend:
+//!   [`render::GuiRenderer`] on native, through `pulga_win_lib`'s canvas.
+//!
+//! See [`ui`] for how a frame works.
 
-pub mod button;
+pub mod draw;
 pub mod font;
 pub mod geometry;
-pub mod label;
+pub mod icons;
+pub mod input;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod render;
-pub mod selector;
-pub mod stack;
-pub mod widget;
+pub mod theme;
+pub mod ui;
 
-pub use button::{Button, ButtonState};
+pub use draw::DrawCommand;
 pub use geometry::{Color, Rect};
-pub use label::Label;
-pub use selector::Selector;
-pub use widget::{DrawCommand, Widget};
+pub use icons::Icon;
+pub use input::{Input, UiKey};
+pub use theme::Theme;
+pub use ui::{ButtonKind, Id, Layer, Response, ToastKind, Ui};
 
 #[cfg(all(test, target_arch = "wasm32"))]
 wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);

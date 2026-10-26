@@ -1,17 +1,51 @@
 # pulga_gui_lib
 
-GUI widget library for the `42run` project: `Label`, `Button`, `Selector`
-today, more to come, plus text: a built-in 5×7 bitmap font defined as ASCII
-art in `src/font.rs` (no font files, font libraries or image decoders).
+GUI toolkit for the `42run` project: an **immediate-mode UI** with the
+widgets a game editor needs, a customizable **theme**, a built-in bitmap
+**font** and pixel **icons** — all defined in code (no font files, font
+libraries or image decoders).
 
-Widget logic (layout, hover/press state, selection) lives in plain Rust with
-no GL or windowing dependency — that's what makes it testable on both native
-and `wasm32-unknown-unknown`. A widget describes itself as a list of
-`DrawCommand`s (`src/widget.rs`: `Rect` and `Text`); a backend turns those
-into pixels. The native backend is `src/render.rs` (`GuiRenderer`, drawing
-through `pulga_win_lib`'s `Canvas2d`); `pulga_win_lib` itself is a native-only
-dependency (`[target.'cfg(not(target_arch = "wasm32"))']` in
-`Cargo.toml`) since its `winit`/`glutin` stack doesn't target wasm32.
+```rust
+ui.begin_frame(input, screen);
+ui.panel("inspector", rect, |ui| {
+    ui.heading("Transform");
+    ui.columns(3, |ui| {
+        ui.drag_value("x", Some(("X", ui.theme.axis[0])), &mut pos[0], 0.25, 2);
+        // ...
+    });
+    if ui.button_with(ButtonKind::Danger, Some(Icon::Trash), "Delete").clicked {
+        // ...
+    }
+});
+let commands = ui.end_frame(); // -> GuiRenderer
+```
+
+## Design
+
+- **Immediate mode** (`src/ui/`): the app describes its UI every frame;
+  each widget call draws and returns a `Response` (hovered, clicked,
+  dragged, changed, submitted). Hot/active/focus ids, layout frames
+  (`horizontal`, `columns`, `indent`, `put`), clipping, and layers (base,
+  modal, popup, tooltip) so popups draw on top and block input under them.
+- **Widgets**: label, caption, heading, separator, badge, buttons (normal,
+  primary, danger, ghost, icon), toggle, checkbox, segmented control, color
+  swatches, text input, drag-to-edit number field (click to type), list/tree
+  rows with disclosure, panel, bar, scroll area, dropdown, menu, modal
+  dialog, tooltips, toast notifications.
+- **Theme** (`src/theme.rs`): every color and metric in one struct; `dark()`
+  and `light()` built in, any field overridable at runtime.
+- **Renderer-independent output** (`src/draw.rs`): widgets emit
+  `DrawCommand`s (rects, rounded rects, shadows, text, icons, clips). The
+  native backend is `src/render.rs` (`GuiRenderer`, on `pulga_win_lib`'s
+  `Canvas2d`, which renders rounded corners and shadows with an SDF).
+- **Input** (`src/input.rs`): a plain per-frame snapshot the host fills from
+  its own window events.
+- **Font** (`src/font.rs`): proportional 5×9 pixel font with lowercase and
+  descenders; **icons** (`src/icons.rs`): 9×9 pixel art, same atlas.
+
+Logic, layout, font and icons have no GL or windowing dependency
+(`pulga_win_lib` is a native-only dependency in `Cargo.toml`), so the tests
+drive a `Ui` with synthetic input on native and in a browser via wasm32.
 
 ## Usage
 
@@ -19,10 +53,13 @@ dependency (`[target.'cfg(not(target_arch = "wasm32"))']` in
 make build      # cargo build
 make test       # cargo test (native)
 make coverage   # cargo tarpaulin --lib
-make gallery    # open a window showing one of each widget (needs a display)
+make gallery    # every widget on one screen (needs a display)
 make doc        # cargo doc --open
 make            # make help
 ```
+
+`PULGA_SCREENSHOT=gallery.png make gallery` saves a screenshot instead of
+staying open (see `pulga_win_lib::screenshot`).
 
 ## WASM tests
 
@@ -31,13 +68,12 @@ Widget-logic tests also run for real inside headless Firefox via
 installed on the host — this machine has no rustup and a tiny home quota):
 
 ```sh
-make -C ../42Run wasm-image   # once, builds the shared test image
-make wasm-test                 # runs the widget tests in headless Firefox
+make -C .. wasm-image   # once, builds the shared test image
+make wasm-test          # runs the widget tests in headless Firefox
 ```
 
-`should_panic` tests (not supported by `wasm_bindgen_test`) stay native-only;
-everything else runs on both targets via a
+Every test runs on both targets via a
 `#[cfg_attr(not(target_arch = "wasm32"), test)] #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]`
 pair per test function.
 
-Part of the [42Run](../42Run) workspace of independent projects.
+Part of the [42Run](..) workspace.
